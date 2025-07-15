@@ -1,0 +1,44 @@
+body {
+  font-family: Poppins, sans-serif;
+  background-color: #f0f8ff;
+  margin: 0;
+  padding: 20px;
+}
+h1 {
+  text-align: center;
+  color: #004080;
+}
+h2 {
+  color: #004080;
+  margin-top: 30px;
+}
+.grid {
+  display: grid;
+  grid-auto-flow: column;
+  overflow-x: auto;
+  gap: 10px;
+  margin-top: 10px;
+  padding-bottom: 10px;
+}
+.cell {
+  background-color: #d0e7ff;
+  border: 2px solid #004080;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  white-space: pre-wrap;
+  min-width: 150px;
+}
+.cell:hover {
+  background-color: #a8d0ff;
+}
+.cell.locked {
+  background-color: #cccccc;
+  border-color: #888888;
+  cursor: not-allowed;
+}
+.cell.completed {
+  background-color: #66ccff;
+}
