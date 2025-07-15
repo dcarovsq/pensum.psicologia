@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Malla Interactiva - Psicología</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #004080;
+    }
+    h2 {
+      color: #004080;
+      margin-top: 30px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .cell {
+      background-color: #d0e7ff;
+      border: 2px solid #004080;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      white-space: pre-wrap;
+    }
+    .cell:hover {
+      background-color: #a8d0ff;
+    }
+    .cell.locked {
+      background-color: #cccccc;
+      border-color: #888888;
+      cursor: not-allowed;
+    }
+    .cell.completed {
+      background-color: #66ccff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva - Psicología</h1>
+  <div id="contenedor"></div>
+
+  <script>
+    const materias = {
+      // Periodo 1
+      '164001': { nombre: 'Antropología', requisitos: [], periodo: 1 },
+      '153002': { nombre: 'Cátedra Faria', requisitos: [], periodo: 1 },
+      '153101': { nombre: 'Introducción a la Lógica', requisitos: [], periodo: 1 },
+      '153011': { nombre: 'Introducción a la Psicología', requisitos: [], periodo: 1 },
+      '153240': { nombre: 'Psicobiología', requisitos: [], periodo: 1 },
+      '164022': { nombre: 'Sociología', requisitos: [], periodo: 1 },
+      // Periodo 2
+      '164009': { nombre: 'Epistemología', requisitos: ['153101'], periodo: 2 },
+      '157010': { nombre: 'Estadística Aplicada a las Ciencias Sociales', requisitos: ['153101'], periodo: 2 },
+      '153218': { nombre: 'Etología', requisitos: ['153240'], periodo: 2 },
+      '162003': { nombre: 'Habilidades Comunicativas', requisitos: [], periodo: 2 },
+      '153229': { nombre: 'Historia y Sistemas Psicológicos Contemporáneos', requisitos: ['153011'], periodo: 2 },
+      '170001': { nombre: 'Morfología', requisitos: ['153240'], periodo: 2 },
+      '153015': { nombre: 'Procesos Psicológicos Básicos', requisitos: ['153011'], periodo: 2 },
+      // Periodo 3
+      '164004': { nombre: 'Educación Ambiental', requisitos: [], periodo: 3 },
+      '153216': { nombre: 'Emoción y Motivación', requisitos: ['153015'], periodo: 3 },
+      '153231': { nombre: 'Medición Psicológica', requisitos: ['157010'], periodo: 3 },
+      '153242': { nombre: 'Psicofisiología', requisitos: ['170001'], periodo: 3 },
+      '153102': { nombre: 'Psicología del Aprendizaje', requisitos: ['153218'], periodo: 3 },
+      '164024': { nombre: 'Teorías y Métodos de Investigación en Ciencias Sociales', requisitos: ['164009'], periodo: 3 },
+      // Periodo 4
+      '153202': { nombre: 'Análisis Experimental del Comportamiento', requisitos: ['153102'], periodo: 4 },
+      '153220': { nombre: 'Evaluación Psicológica Cuantitativa', requisitos: ['164024'], periodo: 4 },
+      '153230': { nombre: 'Introducción a la Psicología del Desarrollo', requisitos: ['153229'], periodo: 4 },
+      '153232': { nombre: 'Modelos Teóricos de la Psicología', requisitos: ['153229'], periodo: 4 },
+      '153237': { nombre: 'Procesos Cognoscitivos', requisitos: ['153216'], periodo: 4 },
+      '153244': { nombre: 'Psicología de la Anormalidad', requisitos: ['153242'], periodo: 4 },
+      '153252': { nombre: 'Psicometría', requisitos: ['153231'], periodo: 4 },
+      // Periodo 5
+      '153217': { nombre: 'Entrevista Psicológica', requisitos: ['153231'], periodo: 5 },
+      '153219': { nombre: 'Evaluación Psicológica Cualitativa', requisitos: ['153220'], periodo: 5 },
+      '153014': { nombre: 'Neuropsicología', requisitos: ['153244'], periodo: 5 },
+      '153239': { nombre: 'Pruebas Psicológicas', requisitos: ['153252'], periodo: 5 },
+      '153248': { nombre: 'Psicología del Desarrollo Infantil', requisitos: ['153230'], periodo: 5 },
+      '153018': { nombre: 'Psicopatología y Psiquiatría', requisitos: ['153244'], periodo: 5 },
+      // Periodo 6
+      '153201': { nombre: 'Análisis Comportamental Aplicado', requisitos: ['153202'], periodo: 6 },
+      '153243': { nombre: 'Psicología Clínica y de la Salud', requisitos: ['153018'], periodo: 6 },
+      '153245': { nombre: 'Psicología de la Personalidad', requisitos: ['153018'], periodo: 6 },
+      '153246': { nombre: 'Psicología del Desarrollo Adolescente', requisitos: ['153248'], periodo: 6 },
+      '153250': { nombre: 'Psicología Educativa', requisitos: ['153237', '153248'], periodo: 6 },
+      '153104': { nombre: 'Psicología Social y Comunitaria', requisitos: ['153237', '164022'], periodo: 6 },
+      // Periodo 7
+      '150001': { nombre: 'Electiva Sociohumanística I', requisitos: ['153104'], periodo: 7 },
+      '153238': { nombre: 'Profundización en Psicología Clínica', requisitos: ['153243'], periodo: 7 },
+      '153247': { nombre: 'Psicología del Desarrollo del Adulto y Adulto Mayor', requisitos: ['153246'], periodo: 7 },
+      '153249': { nombre: 'Psicología Diferencial', requisitos: ['153245'], periodo: 7 },
+      '153251': { nombre: 'Psicología Jurídica', requisitos: ['153104'], periodo: 7 },
+      '153017': { nombre: 'Psicología Organizacional', requisitos: ['153104'], periodo: 7 },
+      // Periodo 8
+      '153203': { nombre: 'Diseños de Intervención Psicológica', requisitos: ['153219'], periodo: 8 },
+      '150002': { nombre: 'Electiva Sociohumanística II', requisitos: ['150001'], periodo: 8 },
+      '164010': { nombre: 'Ética', requisitos: ['150001','153017','153238','153247','153249','153251'], periodo: 8 },
+      '153236': { nombre: 'Pre-Práctica', requisitos: ['150001','153017','153238','153247','153249','153251'], periodo: 8 },
+      '153103': { nombre: 'Psicología del Arte', requisitos: ['153245'], periodo: 8 },
+      '153016': { nombre: 'Psicología Deportiva', requisitos: ['153247'], periodo: 8 },
+      '153262': { nombre: 'Valoración Psicológica', requisitos: ['153238','153239'], periodo: 8 },
+      // Periodo 9
+      '153233': { nombre: 'Práctica en Psicología Clínica y Forense', requisitos: ['150002','153016','153103','153203','153236','153262','164010'], periodo: 9 },
+      '153234': { nombre: 'Práctica en Psicología Organizacional y Jurídica', requisitos: ['150002','153016','153103','153203','153236','153262','164010'], periodo: 9 },
+      '153235': { nombre: 'Práctica en Psicología Social y Educativa', requisitos: ['150002','153016','153103','153203','153236','153262','164010'], periodo: 9 },
+      // Periodo 10
+      '173238': { nombre: 'Actividades Deportivas y Culturales', requisitos: [], periodo: 10 },
+      '369006': { nombre: 'Cívica y Constitución', requisitos: [], periodo: 10 },
+      '167281': { nombre: 'Informática Básica', requisitos: [], periodo: 10 },
+      '153261': { nombre: 'Trabajo de Grado', requisitos: ['153233','153234','153235'], periodo: 10 },
+    };
+
+    const completadas = new Set();
+
+    function puedeDesbloquear(codigo) {
+      return materias[codigo].requisitos.every(r => completadas.has(r));
+    }
+
+    function render() {
+      const contenedor = document.getElementById('contenedor');
+      contenedor.innerHTML = '';
+      for (let periodo = 1; periodo <= 10; periodo++) {
+        const titulo = document.createElement('h2');
+        titulo.textContent = 'Semestre ' + periodo;
+        contenedor.appendChild(titulo);
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        for (const [codigo, data] of Object.entries(materias)) {
+          if (data.periodo === periodo) {
+            const div = document.createElement('div');
+            div.className = 'cell';
+            div.innerText = data.nombre + "\n(" + codigo + ")";
+            if (completadas.has(codigo)) {
+              div.classList.add('completed');
+            } else if (!puedeDesbloquear(codigo)) {
+              div.classList.add('locked');
+            }
+            div.onclick = () => {
+              if (!div.classList.contains('locked')) {
+                if (completadas.has(codigo)) {
+                  completadas.delete(codigo);
+                } else {
+                  completadas.add(codigo);
+                }
+                render();
+              }
+            };
+            grid.appendChild(div);
+          }
+        }
+        contenedor.appendChild(grid);
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
